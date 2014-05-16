@@ -37,7 +37,7 @@ public class ClientServices {
      * @note Defaults to the 
      * @return 
      */
-    String login(String username, String password, String tenant) throws IOException {
+    public String login(String username, String password, String tenant) throws IOException {
         
         
         HttpURLConnection connection = (HttpURLConnection)(new URL(url, "v2.0/tokens")).openConnection();
