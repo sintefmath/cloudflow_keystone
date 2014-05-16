@@ -105,7 +105,7 @@ public class ClientServices {
         
         int response = connection.getResponseCode();
         
-        if(response == 501) {
+        if(response == 401) {
             throw new RuntimeException("Bad authorization");
         }
         
