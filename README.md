@@ -1,7 +1,7 @@
 cloudflow_keystone
 ==================
 
-A small utility library in Java for use with the KeyStone service (part of OpenStack)
+A small utility library in Java and C++ for use with the KeyStone service (part of OpenStack)
 
 
 License
