@@ -15,8 +15,9 @@ typedef enum {
     KEYSTONE_SUCCESS, KEYSTONE_UNKNOWN_ERROR  
 } keystone_error_t;
 
+extern "C" {
 
-KEYSTONE_EXPORT keystone_error_t keystone_init(const char* url, keystone_data_t** data);
+    KEYSTONE_EXPORT keystone_error_t keystone_init(const char* url, keystone_data_t** data);
 
 KEYSTONE_EXPORT keystone_error_t keystone_free(keystone_data_t* data);
 
@@ -39,4 +40,4 @@ KEYSTONE_EXPORT keystone_error_t keystone_userinfo_get_role(const keystone_useri
 KEYSTONE_EXPORT keystone_error_t keystone_userinfo_get_token(const keystone_userinfo_t* info, char* buffer, size_t buffer_length, size_t* data_written);
 
 KEYSTONE_EXPORT keystone_error_t keystone_userinfo_get_token_buffer_size(const keystone_userinfo_t* info, size_t* size);
-
+}

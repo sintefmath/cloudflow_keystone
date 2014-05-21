@@ -1,5 +1,6 @@
 #include "keystone/keystone.h"
 #include "keystone/impl/Keystone.hpp"
+#include <iostream>
 
 #define KEYSTONE_METHOD_START try {
 
@@ -11,6 +12,7 @@ struct keystone_data_struct {
 struct keystone_userinfo_struct {
     keystone::impl::KeystoneUserInfo* impl;
 };
+extern "C" {
 
 
 keystone_error_t keystone_init(const char* url, keystone_data_t** data) {
@@ -154,4 +156,5 @@ keystone_error_t keystone_userinfo_get_token_buffer_size(const keystone_userinfo
     KEYSTONE_METHOD_START
         *size = info->impl->getToken().size() + 1;
     KEYSTONE_METHOD_END
+}
 }
