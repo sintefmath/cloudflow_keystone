@@ -2,6 +2,9 @@
 
 #include "keystone/keystone_export.h"
 
+// For size_t: 
+#include "stdlib.h"
+
 struct keystone_data_struct;
 typedef struct keystone_data_struct keystone_data_t;
 
