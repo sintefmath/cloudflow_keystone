@@ -18,7 +18,9 @@ int main(int argc, char** argv) {
     keystone::Keystone keystone(url);
     
     try {
-        std::cout << keystone.getUsername(tenantName, sessionToken) << std::endl;
+        keystone::KeystoneUserInfo info;
+        keystone.getUserInfoFromToken(tenantName, sessionToken, info);
+        std::cout << info.getUsername() << std::endl;
         return 0;
     } catch(std::runtime_error& e) {
         std::cerr << "Could not get username" << std::endl;

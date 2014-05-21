@@ -18,7 +18,9 @@ int main(int argc, char** argv) {
     keystone::Keystone keystone(url);
     
     try {
-        std::cout << keystone.login(username, password, tenantName) << std::endl;
+        keystone::KeystoneUserInfo info;
+        keystone.login(username, password, tenantName, info);
+        std::cout << info.getToken() << std::endl;
         return 0;
     } catch(std::runtime_error& e) {
         std::cerr << "Could not log in" << std::endl;

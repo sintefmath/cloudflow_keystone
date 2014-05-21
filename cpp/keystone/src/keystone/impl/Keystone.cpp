@@ -1,5 +1,5 @@
 #define NOMINMAX
-#include "keystone/Keystone.hpp"
+#include "keystone/impl/Keystone.hpp"
 #include <curl/curl.h>
 #include <pugixml.hpp>
 
@@ -74,7 +74,7 @@ namespace {
 }
 
 
-namespace keystone {
+namespace keystone { namespace impl {
     /**
     * \param url the URL to the base of the keystone service.
     *            this is typically on the form "http://something.com/keystone"
@@ -97,10 +97,10 @@ namespace keystone {
     /**
     * Logs the user in and returns a sessionToken
     */
-    std::string  Keystone::login(const std::string& username, 
+    void  Keystone::login(const std::string& username, 
         const std::string& password,
-        const std::string& tenantName) {
-
+        const std::string& tenantName,
+        KeystoneUserInfo& info) {
             std::stringstream input;
 
             input << "<?xml version='1.0' encoding='UTF-8'?>" <<std::endl
@@ -138,8 +138,28 @@ namespace keystone {
                 THROW("Unexpected XML document structure");
             }
 
-            return idAttribute.as_string();
+            std::string id = idAttribute.as_string();
+            if(id.size() == 0) {
+                THROW("UnexpectedXML document structure");
+            }
+            info.setToken(id);
 
+            info.setUsername(username);
+
+            pugi::xml_node userNode = accessNode.child("user");
+
+            if (!userNode) {
+                THROW("Unexpected reponse from server.");
+            }
+            pugi::xpath_node_set roleNodes = userNode.select_nodes("/role");
+
+            std::vector<std::string> roles;
+
+            for(pugi::xpath_node_set::const_iterator it = roleNodes.begin(); it != roleNodes.end(); ++it) {
+                roles.push_back(it->node().attribute("name").as_string());
+            }
+
+            info.setRoles(roles);
     }
 
 
@@ -147,8 +167,8 @@ namespace keystone {
     * Gets the username of a sessionToken.
     * \throws runtime_error if the username could not be acquired (typically invalid sessiontoken)
     */
-    std::string  Keystone::getUsername(const std::string& tenantName, 
-        const std::string& sessionToken) {
+    void Keystone::getUserInfo(const std::string& tenantName, 
+        const std::string& sessionToken, KeystoneUserInfo& info) {
 
             std::stringstream input;
 
@@ -186,7 +206,20 @@ namespace keystone {
                 THROW("Unexpected XML document structure");
             }
 
-            return usernameAttribute.as_string();
+            info.setUsername(usernameAttribute.as_string());
+            
+            pugi::xpath_node_set roleNodes = userNode.select_nodes("/role");
+
+            std::vector<std::string> roles;
+
+            for(pugi::xpath_node_set::const_iterator it = roleNodes.begin(); it != roleNodes.end(); ++it) {
+                roles.push_back(it->node().attribute("name").as_string());
+            }
+
+            info.setRoles(roles);
+
+            info.setToken(sessionToken);
+
     }
 
     void Keystone::write(const std::string& endpoint, std::stringstream& input, std::stringstream& output) {
@@ -235,5 +268,5 @@ namespace keystone {
         }
 
     }
-
+}
 }
