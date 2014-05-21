@@ -151,7 +151,7 @@ namespace keystone { namespace impl {
             if (!userNode) {
                 THROW("Unexpected reponse from server.");
             }
-            pugi::xpath_node_set roleNodes = userNode.select_nodes("/role");
+            pugi::xpath_node_set roleNodes = userNode.select_nodes("role");
 
             std::vector<std::string> roles;
 
@@ -208,7 +208,7 @@ namespace keystone { namespace impl {
 
             info.setUsername(usernameAttribute.as_string());
             
-            pugi::xpath_node_set roleNodes = userNode.select_nodes("/role");
+            pugi::xpath_node_set roleNodes = userNode.select_nodes("role");
 
             std::vector<std::string> roles;
 

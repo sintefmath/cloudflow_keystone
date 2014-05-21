@@ -11,3 +11,4 @@ INCLUDE_DIRECTORIES("keystone/include" ${CMAKE_BINARY_DIR}/keystone ${PUGIXML_IN
 ADD_SUBDIRECTORY(keystone)
 ADD_SUBDIRECTORY(keystone_login)
 ADD_SUBDIRECTORY(keystone_check)
+ADD_SUBDIRECTORY(keystone_roles)
