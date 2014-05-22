@@ -160,9 +160,10 @@ EXCLUDE_PATTERNS       = *::impl::* \
                          */src/* \
                          */build/*
 EXCLUDE_SYMBOLS        = 
-EXAMPLE_PATH           = ../keystone_check/keystone_check.cpp \
-                         ../keystone_login/keystone_login.cpp \
-                         ../keystone_roles/keystone_roles.cpp
+EXAMPLE_PATH           = @CMAKE_SOURCE_DIR@/keystone_check/keystone_check.cpp \
+                         @CMAKE_SOURCE_DIR@/keystone_login/keystone_login.cpp \
+                         @CMAKE_SOURCE_DIR@/keystone_roles/keystone_roles.cpp \
+						 @CMAKE_SOURCE_DIR@/keystone_c_example/keystone_c_example.c 
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO
 IMAGE_PATH             = 
