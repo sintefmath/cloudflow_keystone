@@ -9,6 +9,7 @@
  * 
  * \brief this contains the main C-interface for accessing the KeyStone service.
  * 
+ * 
  * \addtogroup keystone
  * \brief The standard C-API. This is the API exposed in the DLL interface. 
  * \{
@@ -60,7 +61,9 @@ typedef enum {
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+    /**
+     * \example keystone_c_example.c
+     */
         
     /**
      * \ingroup keystone
@@ -180,7 +183,7 @@ extern "C" {
 
 
     /**
-    * \example{get_userinfo_from_token_example}
+    * \example get_userinfo_from_token_example
     * \code{.c}
     * // assume keystone_handle is initialized
     * keystone_userinfo_t* userinfo_handle;
@@ -231,7 +234,7 @@ extern "C" {
 
 
     /**
-    * \example{keystone_get_username_example}
+    * \example keystone_get_username_example 
     * \code{.c}
     * // assume keystone_handle and userinfo_handle are initialized.
     * 
@@ -283,7 +286,7 @@ extern "C" {
 
 
     /**
-    * \example{keystone_userinfo_get_buffer_size_example}
+    * \example keystone_userinfo_get_buffer_size_example 
     * \code{.c}
     * // assume keystone_handle and userinfo_handle are initialized.
     * 
@@ -346,7 +349,7 @@ extern "C" {
 
     /**
      * 
-     * \example{keystone_userinfo_get_role_buffer_size}
+     * \example keystone_userinfo_get_role_buffer_size
      * \code{.c}
      * // assume keystone_handle and userinfo_handle are initialized.
      * 
