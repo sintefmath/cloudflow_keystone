@@ -33,27 +33,71 @@ keystone_error_t keystone_free(keystone_data_t* data) {
 
 keystone_error_t keystone_login(keystone_data_t* data, const char* username, const char* password, const char* tenant_name, keystone_userinfo_t** userinfo) {
     KEYSTONE_METHOD_START
-        
-        *userinfo = new keystone_userinfo_t();
-        (*userinfo)->impl = new keystone::impl::KeystoneUserInfo();
+	try {
+	    // Give sane default values: 
+	    *userinfo = NULL;
+	    *userinfo = new keystone_userinfo_t();
+	    (*userinfo)->impl = NULL;
 
-        data->impl->login(username, password, tenant_name, *((*userinfo)->impl));
+	    (*userinfo)->impl = new keystone::impl::KeystoneUserInfo();
+
+	    data->impl->login(username, password, tenant_name, *((*userinfo)->impl));
+	} catch(...) {
+	    // Free up data: 
+	    if (*userinfo != NULL) {
+		if ((*userinfo)->impl != NULL) {
+		    delete (*userinfo)->impl;
+		    (*userinfo)->impl = NULL;
+		}
+		delete *userinfo;
+		*userinfo = NULL;
+	    }
+	    return KEYSTONE_UNKNOWN_ERROR;
+	}
 
     KEYSTONE_METHOD_END
 }
 
 keystone_error_t keystone_userinfo_free(keystone_userinfo_t* info) {
     KEYSTONE_METHOD_START
-        delete info->impl;
-        delete info;
+	bool some_argument_null = !((info != NULL) && (info->impl != NULL));
+	if ( info != NULL) {
+	    if ( info->impl != NULL) {
+		delete info->impl;
+		info->impl = NULL;
+	    }
+	    delete info;
+	    info = NULL;
+	}
+	if (some_argument_null) {
+	    return KEYSTONE_UNKNOWN_ERROR;
+	}
     KEYSTONE_METHOD_END
 }
 
 keystone_error_t keystone_get_userinfo_from_token(keystone_data_t* data, const char* tenant_name, const char* session_token, keystone_userinfo_t** userinfo) {
     KEYSTONE_METHOD_START
-        *userinfo = new keystone_userinfo_t();
-        (*userinfo)->impl = new keystone::impl::KeystoneUserInfo();
-        data->impl->getUserInfo(tenant_name, session_token, *((*userinfo)->impl));
+       try {
+	    // Give sane default values: 
+	    *userinfo = NULL;
+	    *userinfo = new keystone_userinfo_t();
+	    (*userinfo)->impl = NULL;
+
+	    (*userinfo)->impl = new keystone::impl::KeystoneUserInfo();
+
+	    data->impl->getUserInfo(tenant_name, session_token, *((*userinfo)->impl));
+	} catch(...) {
+	    // Free up data: 
+	    if (*userinfo != NULL) {
+		if ((*userinfo)->impl != NULL) {
+		    delete (*userinfo)->impl;
+		    (*userinfo)->impl = NULL;
+		}
+		delete *userinfo;
+		*userinfo = NULL;
+	    }
+	    return KEYSTONE_UNKNOWN_ERROR;
+	}
     KEYSTONE_METHOD_END
 }
 
