@@ -6,6 +6,8 @@ It contains:
    keystone: a standalone library for using keystone
    keystone_login: an executable program for getting a session token
    keystone_check: an executable program for checking a session token.
+   keystone_roles: an executable program for listing roles of a user
+   keystone_c_example: an example program using the DLL interface in C. 
    
 Building
 ==============
@@ -14,7 +16,8 @@ Building
   * C++03 compiler (tested with GCC and Visual Studio 2010)
   * libcurl (http://curl.haxx.se/libcurl/, tested version 7.36)
   * pugixml (http://pugixml.org/)
-
+  * doxygen [optional] (http://www.stack.nl/~dimitri/doxygen/index.html)
+  
 For Windows we recommend using the precompiled version of libcurl found at http://www.confusedbycode.com/curl/
 
 ## Issuing cmake:
