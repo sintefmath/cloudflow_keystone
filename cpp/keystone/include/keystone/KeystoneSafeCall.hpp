@@ -1,5 +1,6 @@
 #pragma once
 #include <stdexcept>
+#include <iostream>
 
 /**
  * \file
@@ -20,6 +21,7 @@
  */
 #define KEYSTONE_SAFE_CALL(x) { \
     if ( x != KEYSTONE_SUCCESS) { \
+    std::cout << "--- KEYSTONE_SAFE_CALL throwing error " << x << "--------" << std::endl; \
     throw std::runtime_error("Keystone generated an error"); \
     } \
 }

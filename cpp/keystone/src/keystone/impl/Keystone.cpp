@@ -113,6 +113,7 @@ namespace keystone { namespace impl {
             std::stringstream output;
 
             std::string tokenUrl = url + "v2.0/tokens";
+            std::cout << "tokenUrl: " << tokenUrl << std::endl;
             write(tokenUrl, input, output);
 
             pugi::xml_document document;
@@ -228,12 +229,28 @@ namespace keystone { namespace impl {
             THROW("Could not initialize curl");
         }
 
+        //std::cout << "Starting Keystone::write" << std::endl;
+
         curl_easy_setopt(curl.curl, CURLOPT_URL, endpoint.c_str());
 
         curl_easy_setopt(curl.curl, CURLOPT_FOLLOWLOCATION, 1L);
         curl_easy_setopt(curl.curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl.curl, CURLOPT_WRITEFUNCTION, writeToSS);
         curl_easy_setopt(curl.curl, CURLOPT_WRITEDATA, &output);
+
+
+        /*
+     * If you want to connect to a site who isn't using a certificate that is
+     * signed by one of the certs in the CA bundle you have, you can skip the
+     * verification of the server's certificate. This makes the connection
+     * A LOT LESS SECURE.
+     *
+     * If you have a CA cert for the server stored someplace else than in the
+     * default bundle, then the CURLOPT_CAPATH option might come handy for
+     * you.
+     */
+        curl_easy_setopt(curl.curl, CURLOPT_SSL_VERIFYPEER, 0L);
+        //curl_easy_setopt(curl.curl, CURLOPT_SSL_VERIFYHOST, 0L);
 
         // Get size:
         input.seekg(0, input.end);
@@ -255,11 +272,16 @@ namespace keystone { namespace impl {
 
         curl_easy_setopt(curl.curl, CURLOPT_HTTPHEADER, headers.list);
 
+        //std::cout << "executing: KEYSTONE_CURL_SAFE_CALL(curl_easy_perform(curl.curl))" << std::endl;
+
         KEYSTONE_CURL_SAFE_CALL(curl_easy_perform(curl.curl));
 
+        //std::cout << "KEYSTONE_CURL_SAFE_CALL(curl_easy_getinfo(curl.curl, CURLINFO_RESPONSE_CODE, &returnCode));" << std::endl;
 
         long returnCode;
         KEYSTONE_CURL_SAFE_CALL(curl_easy_getinfo(curl.curl, CURLINFO_RESPONSE_CODE, &returnCode));
+
+        //std::cout << "CURL returnCode : " << returnCode << std::endl;
 
         if (returnCode != 200 && returnCode != 203) {
             std::stringstream ss;
