@@ -81,6 +81,7 @@
 #	define PUGIXML_CHAR char
 #endif
 
+namespace pugi4lunch {
 namespace pugi
 {
 	// Character type used for all internal storage and operations; depends on PUGIXML_WCHAR_MODE
@@ -91,7 +92,9 @@ namespace pugi
 	typedef std::basic_string<PUGIXML_CHAR, std::char_traits<PUGIXML_CHAR>, std::allocator<PUGIXML_CHAR> > string_t;
 #endif
 }
+} // namespace pugi4lunch
 
+namespace pugi4lunch {
 // The PugiXML namespace
 namespace pugi
 {
@@ -1310,14 +1313,15 @@ namespace pugi
 	allocation_function PUGIXML_FUNCTION get_memory_allocation_function();
 	deallocation_function PUGIXML_FUNCTION get_memory_deallocation_function();
 }
+} // namespace pugi4lunch
 
 #if !defined(PUGIXML_NO_STL) && (defined(_MSC_VER) || defined(__ICC))
 namespace std
 {
 	// Workarounds for (non-standard) iterator category detection for older versions (MSVC7/IC8 and earlier)
-	std::bidirectional_iterator_tag PUGIXML_FUNCTION _Iter_cat(const pugi::xml_node_iterator&);
-	std::bidirectional_iterator_tag PUGIXML_FUNCTION _Iter_cat(const pugi::xml_attribute_iterator&);
-	std::bidirectional_iterator_tag PUGIXML_FUNCTION _Iter_cat(const pugi::xml_named_node_iterator&);
+    std::bidirectional_iterator_tag PUGIXML_FUNCTION _Iter_cat(const pugi4lunch::pugi::xml_node_iterator&);
+    std::bidirectional_iterator_tag PUGIXML_FUNCTION _Iter_cat(const pugi4lunch::pugi::xml_attribute_iterator&);
+    std::bidirectional_iterator_tag PUGIXML_FUNCTION _Iter_cat(const pugi4lunch::pugi::xml_named_node_iterator&);
 }
 #endif
 
@@ -1325,9 +1329,9 @@ namespace std
 namespace std
 {
 	// Workarounds for (non-standard) iterator category detection
-	std::bidirectional_iterator_tag PUGIXML_FUNCTION __iterator_category(const pugi::xml_node_iterator&);
-	std::bidirectional_iterator_tag PUGIXML_FUNCTION __iterator_category(const pugi::xml_attribute_iterator&);
-	std::bidirectional_iterator_tag PUGIXML_FUNCTION __iterator_category(const pugi::xml_named_node_iterator&);
+    std::bidirectional_iterator_tag PUGIXML_FUNCTION __iterator_category(const pugi4lunch::pugi::xml_node_iterator&);
+    std::bidirectional_iterator_tag PUGIXML_FUNCTION __iterator_category(const pugi4lunch::pugi::xml_attribute_iterator&);
+    std::bidirectional_iterator_tag PUGIXML_FUNCTION __iterator_category(const pugi4lunch::pugi::xml_named_node_iterator&);
 }
 #endif
 

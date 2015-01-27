@@ -1,7 +1,7 @@
 #define NOMINMAX
 #include "keystone/impl/Keystone.hpp"
+#include "pugi4lunch/pugixml.hpp"
 #include <curl/curl.h>
-#include <pugixml.hpp>
 
 #include <stdexcept>
 #include <sstream>
@@ -115,24 +115,24 @@ namespace keystone { namespace impl {
             std::string tokenUrl = url + "v2.0/tokens";
             write(tokenUrl, input, output);
 
-            pugi::xml_document document;
+	    pugi4lunch::pugi::xml_document document;
             if (!document.load(output)) {
                 THROW("Could not parse xml document returned from server");
             }
 
-            pugi::xml_node accessNode = document.child("access");
+            pugi4lunch::pugi::xml_node accessNode = document.child("access");
 
             if(!accessNode) {
                 THROW("Unexpected XML document structure");
             }
 
-            pugi::xml_node tokenNode = accessNode.child("token");
+            pugi4lunch::pugi::xml_node tokenNode = accessNode.child("token");
 
             if(!tokenNode) {
                 THROW("Unexpected XML document structure");
             }
 
-            pugi::xml_attribute idAttribute = tokenNode.attribute("id");
+	    pugi4lunch::pugi::xml_attribute idAttribute = tokenNode.attribute("id");
 
             if(!idAttribute) {
                 THROW("Unexpected XML document structure");
@@ -146,16 +146,16 @@ namespace keystone { namespace impl {
 
             info.setUsername(username);
 
-            pugi::xml_node userNode = accessNode.child("user");
+	    pugi4lunch::pugi::xml_node userNode = accessNode.child("user");
 
             if (!userNode) {
                 THROW("Unexpected reponse from server.");
             }
-            pugi::xpath_node_set roleNodes = userNode.select_nodes("role");
+	    pugi4lunch::pugi::xpath_node_set roleNodes = userNode.select_nodes("role");
 
             std::vector<std::string> roles;
 
-            for(pugi::xpath_node_set::const_iterator it = roleNodes.begin(); it != roleNodes.end(); ++it) {
+            for(pugi4lunch::pugi::xpath_node_set::const_iterator it = roleNodes.begin(); it != roleNodes.end(); ++it) {
                 roles.push_back(it->node().attribute("name").as_string());
             }
 
@@ -184,35 +184,35 @@ namespace keystone { namespace impl {
             std::string tokenUrl = url + "v2.0/tokens";
             write(tokenUrl, input, output);
 
-            pugi::xml_document document;
+	    pugi4lunch::pugi::xml_document document;
             if (!document.load(output)) {
                 THROW("Could not parse xml document returned from server");
             }
 
-            pugi::xml_node accessNode = document.child("access");
+	    pugi4lunch::pugi::xml_node accessNode = document.child("access");
 
             if(!accessNode) {
                 THROW("Unexpected XML document structure");
             }
 
-            pugi::xml_node userNode = accessNode.child("user");
+	    pugi4lunch::pugi::xml_node userNode = accessNode.child("user");
 
             if(!userNode) {
                 THROW("Unexpected XML document structure");
             }
 
-            pugi::xml_attribute usernameAttribute = userNode.attribute("username");
+	    pugi4lunch::pugi::xml_attribute usernameAttribute = userNode.attribute("username");
             if(!usernameAttribute) {
                 THROW("Unexpected XML document structure");
             }
 
             info.setUsername(usernameAttribute.as_string());
             
-            pugi::xpath_node_set roleNodes = userNode.select_nodes("role");
+	    pugi4lunch::pugi::xpath_node_set roleNodes = userNode.select_nodes("role");
 
             std::vector<std::string> roles;
 
-            for(pugi::xpath_node_set::const_iterator it = roleNodes.begin(); it != roleNodes.end(); ++it) {
+            for(pugi4lunch::pugi::xpath_node_set::const_iterator it = roleNodes.begin(); it != roleNodes.end(); ++it) {
                 roles.push_back(it->node().attribute("name").as_string());
             }
 
