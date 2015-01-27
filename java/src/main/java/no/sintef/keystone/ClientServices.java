@@ -18,12 +18,16 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.json.JsonValue;
 import javax.json.JsonWriter;
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  *
  * @author kjetilo
  */
 public class ClientServices {
+    static {
+       	System.setProperty("jsse.enableSNIExtension", "false");
+    }
     final private URL url;
     
     public ClientServices(URL url) {
@@ -40,7 +44,7 @@ public class ClientServices {
     public String login(String username, String password, String tenant) throws IOException {
         
         
-        HttpURLConnection connection = (HttpURLConnection)(new URL(url, "v2.0/tokens")).openConnection();
+        HttpsURLConnection connection = (HttpsURLConnection)(new URL(url, "v2.0/tokens")).openConnection();
         JsonObject inputObject = Json.createObjectBuilder()
                 .add("auth", Json.createObjectBuilder()
                     .add("passwordCredentials", Json.createObjectBuilder()
@@ -81,7 +85,7 @@ public class ClientServices {
      * @return the userName of the current user
      */
     public String getUsername(String userToken, String tenant) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection)(new URL(url, "v2.0/tokens").openConnection());
+       HttpsURLConnection connection = (HttpsURLConnection)(new URL(url, "v2.0/tokens").openConnection());
         
        connection.setRequestProperty("Accept", "application/json");
         
@@ -106,7 +110,7 @@ public class ClientServices {
         int response = connection.getResponseCode();
         
         if(response == 401) {
-            throw new RuntimeException("Bad authorization");
+            throw new RuntimeException("Bad authorization: userToken = " + userToken + ", tenant = " + tenant);
         }
         
         if(response != 203 && response != 200) {
@@ -120,5 +124,6 @@ public class ClientServices {
         input.close();
         
         return outputObject.getJsonObject("access").getJsonObject("user").getString("username");
+                
     }
 }
