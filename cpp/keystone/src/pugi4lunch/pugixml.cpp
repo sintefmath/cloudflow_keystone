@@ -123,7 +123,7 @@ using std::memmove;
 #		define PUGI__NS_END } } }
 #	else
 #		define PUGI__NS_BEGIN namespace pugi4lunch { namespace pugi { namespace impl { namespace {
-#		define PUGI__NS_END } }  }
+#		define PUGI__NS_END } } } }
 #	endif
 #	define PUGI__FN
 #	define PUGI__FN_NO_INLINE PUGI__NO_INLINE

@@ -6,7 +6,7 @@ SET( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
 # We are going to need pugixml for everything, but its source code is 
 # now in this project.
 FIND_PACKAGE(CURL REQUIRED)
-INCLUDE_DIRECTORIES("keystone/include" "keystone/pugi4lunch" ${CMAKE_BINARY_DIR}/keystone ${CURL_INCLUDE_DIR})
+INCLUDE_DIRECTORIES("keystone/include" "keystone/include/pugi4lunch" ${CMAKE_BINARY_DIR}/keystone ${CURL_INCLUDE_DIR})
 
 ADD_SUBDIRECTORY(keystone)
 ADD_SUBDIRECTORY(keystone_login)
