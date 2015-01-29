@@ -19,10 +19,15 @@ namespace keystone {
 
             const std::string& getToken() const;
 
+            void setCaCertFileName(const std::string& caCertFileName);
+
+            const std::string& getCaCertFileName() const;
+
         private:
             std::string username;
             std::vector<std::string> roles;
             std::string token;
+            std::string caCertFileName;
         };
     }
 }

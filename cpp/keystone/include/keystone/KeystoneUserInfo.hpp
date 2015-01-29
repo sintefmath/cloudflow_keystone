@@ -48,7 +48,7 @@ namespace keystone {
          * 
          * \throws std::runtime_error if the object is in an invalid state (eg. if it has not been passed to either 
          *                            \ref Keystone::login or \ref Keystone::getUserInfoFromToken), or if something bad has happened.  
-         */
+          */
         inline void getUsername(std::string& output) const {
             checkInfo();
             size_t usernameSize;

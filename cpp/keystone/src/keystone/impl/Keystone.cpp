@@ -113,7 +113,7 @@ namespace keystone { namespace impl {
             std::stringstream output;
 
             std::string tokenUrl = url + "v2.0/tokens";
-            write(tokenUrl, input, output);
+            write(tokenUrl, info, input, output);
 
 	    pugi4lunch::pugi::xml_document document;
             if (!document.load(output)) {
@@ -170,6 +170,8 @@ namespace keystone { namespace impl {
     void Keystone::getUserInfo(const std::string& tenantName, 
         const std::string& sessionToken, KeystoneUserInfo& info) {
 
+	std::cout << "Keystone::getUserInfo in src/keystone/impl/Keystone.cpp" << std::endl;
+
             std::stringstream input;
 
             input << "<?xml version='1.0' encoding='UTF-8'?>" <<std::endl
@@ -182,7 +184,7 @@ namespace keystone { namespace impl {
             std::stringstream output;
 
             std::string tokenUrl = url + "v2.0/tokens";
-            write(tokenUrl, input, output);
+            write(tokenUrl, info, input, output);
 
 	    pugi4lunch::pugi::xml_document document;
             if (!document.load(output)) {
@@ -222,7 +224,8 @@ namespace keystone { namespace impl {
 
     }
 
-    void Keystone::write(const std::string& endpoint, std::stringstream& input, std::stringstream& output) {
+    void Keystone::write(const std::string& endpoint, const KeystoneUserInfo& info,
+                         std::stringstream& input, std::stringstream& output) {
         CurlHolder curl(curl_easy_init());
         if (!curl.curl) {
             THROW("Could not initialize curl");
@@ -244,7 +247,13 @@ namespace keystone { namespace impl {
         curl_easy_setopt(curl.curl, CURLOPT_READFUNCTION, readFromSS);
         curl_easy_setopt(curl.curl, CURLOPT_READDATA, &input);
 
-
+        if (info.getCaCertFileName() != "") {
+            std::cout << "Setting path for ca_bundle" << std::endl;
+            curl_easy_setopt(curl.curl, CURLOPT_CAINFO, info.getCaCertFileName().c_str());
+        }
+        else {
+            std::cout << "Skipping setting ca_bundle stuff" << std::endl;
+        }
 
 
         // Set headers:

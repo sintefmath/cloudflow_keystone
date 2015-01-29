@@ -28,10 +28,14 @@ namespace keystone { namespace impl {
          * \throws runtime_error if the username could not be acquired (typically invalid sessiontoken)
          */
         void getUserInfo(const std::string& tenantName, 
-        const std::string& sessionToken, KeystoneUserInfo& info);
+            const std::string& sessionToken, KeystoneUserInfo& info);
 
     private:
-        void write(const std::string& endpoint, std::stringstream& in, std::stringstream& out);
+        void write(const std::string& endpoint,
+                   const KeystoneUserInfo& info,
+                   std::stringstream& in,
+                   std::stringstream& out);
+
         std::string url;
     };
  

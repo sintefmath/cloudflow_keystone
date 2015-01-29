@@ -90,6 +90,13 @@ namespace keystone {
             info.setUserInfo(userInfo);
         }
 
+	
+	void setCACertificateFilename(const std::string& certFileName, KeystoneUserInfo& info) {
+	    //KEYSTONE_SAFE_CALL(keystone_set_ca_certificate_filename(certFileName, info));
+	    //info.set
+	}
+	
+
     private: 
         keystone_data_t* data;
 
