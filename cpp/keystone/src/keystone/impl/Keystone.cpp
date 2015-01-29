@@ -261,7 +261,9 @@ namespace keystone { namespace impl {
         curl_easy_setopt(curl.curl, CURLOPT_READFUNCTION, readFromSS);
         curl_easy_setopt(curl.curl, CURLOPT_READDATA, &input);
 
-
+	curl_version_info_data* curlData = curl_version_info( CURLVERSION_NOW);
+	std::cout << "VERSION: " << curlData->version << std::endl;
+	std::cout << "SLL    : " << curlData->ssl_version << std::endl;
 
 
         // Set headers:
