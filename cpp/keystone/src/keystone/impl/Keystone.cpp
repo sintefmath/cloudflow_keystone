@@ -239,19 +239,10 @@ namespace keystone { namespace impl {
         curl_easy_setopt(curl.curl, CURLOPT_WRITEDATA, &output);
 
 
-        /*
-     * If you want to connect to a site who isn't using a certificate that is
-     * signed by one of the certs in the CA bundle you have, you can skip the
-     * verification of the server's certificate. This makes the connection
-     * A LOT LESS SECURE.
-     *
-     * If you have a CA cert for the server stored someplace else than in the
-     * default bundle, then the CURLOPT_CAPATH option might come handy for
-     * you.
-     */
-        curl_easy_setopt(curl.curl, CURLOPT_SSL_VERIFYPEER, 0L);
-        //curl_easy_setopt(curl.curl, CURLOPT_SSL_VERIFYHOST, 0L);
-
+    
+	curl_easy_setopt(curl.curl, CURLOPT_CAINFO, "/etc/ssl/certs/ca-certificates.crt");
+	// This file is called curl-ca-bundle.crt on windows, and comes with curl.
+	
         // Get size:
         input.seekg(0, input.end);
         size_t inputSize = input.tellg();
