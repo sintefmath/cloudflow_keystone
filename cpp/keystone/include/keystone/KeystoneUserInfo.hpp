@@ -25,7 +25,7 @@ namespace keystone {
         /**
          * Constructs a new instance. 
          * \note Newly constructed \ref KeystoneUserInfo objects are not valid until they have been passed to a method 
-         *       in \ref Keystone (eg. \ref Keystone::login og \ref Keystone::getUserInfoFromToken)
+         *       in \ref Keystone (eg. \ref Keystone::login or \ref Keystone::getUserInfoFromToken)
          *       calling any functions on a \ref KeystoneUserInfo -object before this will result in an exception
          */
         inline KeystoneUserInfo() : info(NULL) {}
@@ -178,8 +178,6 @@ namespace keystone {
         }
 
         
-
-
     private:
         inline void setUserInfo(keystone_userinfo_t* info)  { 
             if (this->info != NULL) {

@@ -30,6 +30,13 @@ namespace keystone { namespace impl {
         void getUserInfo(const std::string& tenantName, 
             const std::string& sessionToken, KeystoneUserInfo& info);
 
+        /**
+         * Set the CA certification file name in order to correctly handle https urls
+         * @param caCertFileName
+         */
+        void setCaCertFileName(const std::string& caCertFileName);
+
+
     private:
         void write(const std::string& endpoint,
                    const KeystoneUserInfo& info,
@@ -37,6 +44,9 @@ namespace keystone { namespace impl {
                    std::stringstream& out);
 
         std::string url;
+        std::string caCertFileName;
+        bool userDefinedCaCertFile;
+
     };
  
 }}

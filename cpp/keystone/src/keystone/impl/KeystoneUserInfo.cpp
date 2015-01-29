@@ -6,7 +6,6 @@ namespace keystone { namespace impl {
 
     KeystoneUserInfo::KeystoneUserInfo()
     {
-        caCertFileName = "";
     }
 
     const std::string& KeystoneUserInfo::getUsername() const
@@ -38,15 +37,6 @@ namespace keystone { namespace impl {
     {
         return token;
     }
-
-    void KeystoneUserInfo::setCaCertFileName(const std::string &CaCertFileName) {
-        this->caCertFileName = CaCertFileName;
-    }
-
-    const std::string& KeystoneUserInfo::getCaCertFileName() const {
-        return caCertFileName;
-    }
-
 }}
 
 

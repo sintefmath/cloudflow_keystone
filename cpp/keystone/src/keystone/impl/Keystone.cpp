@@ -91,6 +91,8 @@ namespace keystone { namespace impl {
             this->url.append(1, '/');
         }
 
+        userDefinedCaCertFile = false;
+
     }
 
 
@@ -224,6 +226,12 @@ namespace keystone { namespace impl {
 
     }
 
+
+    void Keystone::setCaCertFileName(const std::string &caCertFileName) {
+        this->caCertFileName = caCertFileName;
+        userDefinedCaCertFile = true;
+    }
+
     void Keystone::write(const std::string& endpoint, const KeystoneUserInfo& info,
                          std::stringstream& input, std::stringstream& output) {
         CurlHolder curl(curl_easy_init());
@@ -247,9 +255,9 @@ namespace keystone { namespace impl {
         curl_easy_setopt(curl.curl, CURLOPT_READFUNCTION, readFromSS);
         curl_easy_setopt(curl.curl, CURLOPT_READDATA, &input);
 
-        if (info.getCaCertFileName() != "") {
+        if (this->userDefinedCaCertFile) {
             std::cout << "Setting path for ca_bundle" << std::endl;
-            curl_easy_setopt(curl.curl, CURLOPT_CAINFO, info.getCaCertFileName().c_str());
+            curl_easy_setopt(curl.curl, CURLOPT_CAINFO, this->caCertFileName.c_str());
         }
         else {
             std::cout << "Skipping setting ca_bundle stuff" << std::endl;
