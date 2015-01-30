@@ -256,11 +256,7 @@ namespace keystone { namespace impl {
         curl_easy_setopt(curl.curl, CURLOPT_READDATA, &input);
 
         if (this->userDefinedCaCertFile) {
-            std::cout << "Setting path for ca_bundle" << std::endl;
             curl_easy_setopt(curl.curl, CURLOPT_CAINFO, this->caCertFileName.c_str());
-        }
-        else {
-            std::cout << "Skipping setting ca_bundle stuff" << std::endl;
         }
 
 
