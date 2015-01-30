@@ -63,11 +63,12 @@ The path to this file (including its file name) can then be used as a optional p
 The program will return a non-zero value and print a short error message to stderr in case something goes wrong.
 
 
-Specify certification file by environment variable
-==================================================
+##Specify certificate file by environment variable
+
 If you need to access a keystone server under https protocol and you can not use the function for setting the path to the certificate bundle as shown in the keystone_https example, you can instead use an environmental variable to get the same behaviour.
 
 For instance, use keystone_login example as follows (using Linux):
 
     export KEYSTONE_SET_CA_CERTIFICATE_FILENAME=<path_to_certification_file>
     keystone_login https://<your_domain>/keystone/ <USERNAME> <PASSWORD> <TENANTID>
+
