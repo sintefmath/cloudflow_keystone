@@ -6,7 +6,8 @@ It contains:
    * keystone: a standalone library for using keystone
    * keystone_login: an executable program for getting a session token
    * keystone_check: an executable program for checking a session token.
-   * keystone_roles: an executable program for listing roles of a user
+   * keystone_roles: an executable program for listing roles of a user.
+   * keystone_https: an executable program for getting a session token while specifying location of CA certificat file.
    * keystone_c_example: an example program using the DLL interface in C. 
    
 Building
@@ -15,7 +16,6 @@ Building
   * cmake (http://www.cmake.org/)
   * C++03 compiler (tested with GCC and Visual Studio 2010)
   * libcurl (http://curl.haxx.se/libcurl/, tested version 7.36)
-  * pugixml (http://pugixml.org/)
   * doxygen *optional* (http://www.stack.nl/~dimitri/doxygen/index.html)
   
 For Windows we recommend using the precompiled version of libcurl found at http://www.confusedbycode.com/curl/
@@ -49,3 +49,15 @@ It returns 0 and prints the username associated to the token to stdout if everyt
 and returns a non-zero value if there was an error (and writes a short error message to stderr).
 
 
+keystone_https
+==============
+The keystone_https program is very similar to keystone_login and prints the session token to stdout if
+everything went OK, and returns 0. However, in order to use the https protocol, we sometimes need to provide the information
+on where to find the certificate bundle fra the Certificate Authorities (CA).
+
+Such a file can be downloaded from e.g. http://curl.haxx.se/ca/cacert.pem and should be stored locally.
+The path to this file (including its file name) can then be used as a optional parameter to this program.
+
+    keystone_https <URL> <USERNAME> <PASSWORD> <TENANTID> [<CERTFILENAME>]
+
+The program will return a non-zero value and print a short error message to stderr in case something goes wrong.
