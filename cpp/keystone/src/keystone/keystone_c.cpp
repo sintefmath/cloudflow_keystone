@@ -101,6 +101,12 @@ keystone_error_t keystone_get_userinfo_from_token(keystone_data_t* data, const c
     KEYSTONE_METHOD_END
 }
 
+keystone_error_t keystone_set_ca_certificate_filename(keystone_data_t* data, const char* cert_file_name) {
+    KEYSTONE_METHOD_START
+    data->impl->setCaCertFileName(cert_file_name);
+    KEYSTONE_METHOD_END
+}
+
 keystone_error_t keystone_userinfo_get_username(const keystone_userinfo_t* info, char* buffer, size_t buffer_length, size_t* data_written) {
     KEYSTONE_METHOD_START
         size_t size_to_write;
