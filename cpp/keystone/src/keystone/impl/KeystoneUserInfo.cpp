@@ -6,7 +6,6 @@ namespace keystone { namespace impl {
 
     KeystoneUserInfo::KeystoneUserInfo()
     {
-
     }
 
     const std::string& KeystoneUserInfo::getUsername() const
@@ -38,7 +37,6 @@ namespace keystone { namespace impl {
     {
         return token;
     }
-
 }}
 
 

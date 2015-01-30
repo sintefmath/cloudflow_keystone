@@ -90,6 +90,21 @@ namespace keystone {
             info.setUserInfo(userInfo);
         }
 
+	
+        /**
+         * Set the path to the file containing the certificates from the Certificate Authorities (CA). This might be required for accessing
+         * keystone servers behind https protocols.
+         *
+         * \param[in] certFileName the path and filename of the CA certificate bundle.
+         *
+         * \throws std::runtime_error if an error occurred.
+         */
+
+        void setCACertificateFilename(const std::string& certFileName) {
+            KEYSTONE_SAFE_CALL(keystone_set_ca_certificate_filename(data, certFileName.c_str()));
+        }
+	
+
     private: 
         keystone_data_t* data;
 

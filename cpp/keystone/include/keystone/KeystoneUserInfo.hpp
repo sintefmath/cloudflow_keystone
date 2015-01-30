@@ -25,7 +25,7 @@ namespace keystone {
         /**
          * Constructs a new instance. 
          * \note Newly constructed \ref KeystoneUserInfo objects are not valid until they have been passed to a method 
-         *       in \ref Keystone (eg. \ref Keystone::login og \ref Keystone::getUserInfoFromToken)
+         *       in \ref Keystone (eg. \ref Keystone::login or \ref Keystone::getUserInfoFromToken)
          *       calling any functions on a \ref KeystoneUserInfo -object before this will result in an exception
          */
         inline KeystoneUserInfo() : info(NULL) {}
@@ -48,7 +48,7 @@ namespace keystone {
          * 
          * \throws std::runtime_error if the object is in an invalid state (eg. if it has not been passed to either 
          *                            \ref Keystone::login or \ref Keystone::getUserInfoFromToken), or if something bad has happened.  
-         */
+          */
         inline void getUsername(std::string& output) const {
             checkInfo();
             size_t usernameSize;
@@ -178,8 +178,6 @@ namespace keystone {
         }
 
         
-
-
     private:
         inline void setUserInfo(keystone_userinfo_t* info)  { 
             if (this->info != NULL) {

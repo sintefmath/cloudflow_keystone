@@ -234,6 +234,20 @@ extern "C" {
 
 
     /**
+     * \ingroup keystone
+     * Set the path to the file containing the certificates from the Certificate Authorities (CA). This might be required for accessing
+     * keystone servers behind https protocols.
+     *
+     * \param[in] handle a valid handle to keystone (obtained by \ref keystone_init).
+     *
+     * \param[in] cert_file_name a null terminated string containing the path and file name of the CA bundle.
+     *
+     * \return \ref KEYSTONE_SUCCESS if all went OK, something else otherwise.
+     */
+    KEYSTONE_EXPORT keystone_error_t keystone_set_ca_certificate_filename(keystone_data_t* handle, const char* cert_file_name);
+
+
+    /**
     * \example keystone_get_username_example 
     * \code{.c}
     * // assume keystone_handle and userinfo_handle are initialized.

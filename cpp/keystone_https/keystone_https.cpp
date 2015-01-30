@@ -4,9 +4,9 @@
 
 int main(int argc, char** argv) {
 
-    if(argc != 5) {
+    if(!(argc == 5 || argc == 6) ) {
         std::cout << "Usage: " <<std::endl;
-        std::cout << "\tkeystone_login <URL> <username> <password> <tenantname>" << std::endl;
+        std::cout << "\tkeystone_login_https <URL> <username> <password> <tenantname> [certificatePath (optional)]" << std::endl;
         return 1;
     }
     
@@ -19,8 +19,13 @@ int main(int argc, char** argv) {
     
     try {
         keystone::KeystoneUserInfo info;
+        if (argc == 6) {
+            const std::string certFileName(argv[5]);
+            keystone.setCACertificateFilename(certFileName);
+        }
         keystone.login(username, password, tenantName, info);
         std::cout << info.getToken() << std::endl;
+
         return 0;
     } catch(std::runtime_error& e) {
         std::cerr << "Could not log in" << std::endl;
