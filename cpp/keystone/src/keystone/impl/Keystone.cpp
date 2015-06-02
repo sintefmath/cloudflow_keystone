@@ -3,6 +3,7 @@
 #include "pugi4lunch/pugixml.hpp"
 #include <curl/curl.h>
 
+#include <stdlib.h>
 #include <stdexcept>
 #include <sstream>
 #include <numeric>
@@ -255,8 +256,15 @@ namespace keystone { namespace impl {
         curl_easy_setopt(curl.curl, CURLOPT_READFUNCTION, readFromSS);
         curl_easy_setopt(curl.curl, CURLOPT_READDATA, &input);
 
+        // Check environmental variable or if the user has provided certification
+        // file name:
+        char* envCaCertFileName;
+        envCaCertFileName = getenv("KEYSTONE_SET_CA_CERTIFICATE_FILENAME");
         if (this->userDefinedCaCertFile) {
             curl_easy_setopt(curl.curl, CURLOPT_CAINFO, this->caCertFileName.c_str());
+        }
+        else if ( envCaCertFileName != NULL ) {
+            curl_easy_setopt(curl.curl, CURLOPT_CAINFO, envCaCertFileName);
         }
 
 
