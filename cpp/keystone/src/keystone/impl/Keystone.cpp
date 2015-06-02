@@ -14,7 +14,7 @@
     std::stringstream ss; \
     ss<< "At " << __FILE__ << "(" << __LINE__ << "): \"" << msg << "\""; \
     throw std::runtime_error(ss.str()); \
-} 
+}
 
 
 #define KEYSTONE_CURL_SAFE_CALL(x) {\
@@ -22,7 +22,7 @@
     if ( result != CURLE_OK) { \
     THROW("Curl error code: " << result); \
     } \
-} 
+}
 
 namespace {
     size_t writeToSS(char* dataPointer, size_t size, size_t nmemb, void* stringStreamAsVoid) {
@@ -86,11 +86,15 @@ namespace keystone { namespace impl {
             THROW("Illegal length of URL");
         }
         this->url = url;
-        
+
         // Just make sure that it ends with '/'
         if (this->url[this->url.size() - 1] != '/') {
             this->url.append(1, '/');
         }
+
+        this->adminUrl = url;
+        // Replacing /keystone/ with /keystone_admin/
+        m_replace(this->adminUrl, "/keystone/", "/keystone_admin/");
 
         userDefinedCaCertFile = false;
 
@@ -100,7 +104,7 @@ namespace keystone { namespace impl {
     /**
     * Logs the user in and returns a sessionToken
     */
-    void  Keystone::login(const std::string& username, 
+    void  Keystone::login(const std::string& username,
         const std::string& password,
         const std::string& tenantName,
         KeystoneUserInfo& info) {
@@ -118,7 +122,7 @@ namespace keystone { namespace impl {
             std::string tokenUrl = url + "v2.0/tokens";
             write(tokenUrl, info, input, output);
 
-	    pugi4lunch::pugi::xml_document document;
+        pugi4lunch::pugi::xml_document document;
             if (!document.load(output)) {
                 THROW("Could not parse xml document returned from server");
             }
@@ -135,7 +139,7 @@ namespace keystone { namespace impl {
                 THROW("Unexpected XML document structure");
             }
 
-	    pugi4lunch::pugi::xml_attribute idAttribute = tokenNode.attribute("id");
+        pugi4lunch::pugi::xml_attribute idAttribute = tokenNode.attribute("id");
 
             if(!idAttribute) {
                 THROW("Unexpected XML document structure");
@@ -149,12 +153,12 @@ namespace keystone { namespace impl {
 
             info.setUsername(username);
 
-	    pugi4lunch::pugi::xml_node userNode = accessNode.child("user");
+        pugi4lunch::pugi::xml_node userNode = accessNode.child("user");
 
             if (!userNode) {
                 THROW("Unexpected reponse from server.");
             }
-	    pugi4lunch::pugi::xpath_node_set roleNodes = userNode.select_nodes("role");
+        pugi4lunch::pugi::xpath_node_set roleNodes = userNode.select_nodes("role");
 
             std::vector<std::string> roles;
 
@@ -170,50 +174,39 @@ namespace keystone { namespace impl {
     * Gets the username of a sessionToken.
     * \throws runtime_error if the username could not be acquired (typically invalid sessiontoken)
     */
-    void Keystone::getUserInfo(const std::string& tenantName, 
+    void Keystone::getUserInfo(const std::string& tenantName,
         const std::string& sessionToken, KeystoneUserInfo& info) {
-
-	std::cout << "Keystone::getUserInfo in src/keystone/impl/Keystone.cpp" << std::endl;
-
-            std::stringstream input;
-
-            input << "<?xml version='1.0' encoding='UTF-8'?>" <<std::endl
-                << "<auth xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' " << std::endl
-                << "xmlns='http://docs.openstack.org/identity/api/v2.0' " <<std::endl
-                << "tenantName='" << tenantName << "'>"<<std::endl
-                << "<token id='" << sessionToken <<"' />"<<std::endl
-                << "</auth>" << std::endl;
 
             std::stringstream output;
 
-            std::string tokenUrl = url + "v2.0/tokens";
-            write(tokenUrl, info, input, output);
+            std::string tokenUrl = adminUrl + "v2.0/tokens/" + sessionToken;
+            getRequest(tokenUrl, info, output);
 
-	    pugi4lunch::pugi::xml_document document;
+        pugi4lunch::pugi::xml_document document;
             if (!document.load(output)) {
                 THROW("Could not parse xml document returned from server");
             }
 
-	    pugi4lunch::pugi::xml_node accessNode = document.child("access");
+        pugi4lunch::pugi::xml_node accessNode = document.child("access");
 
             if(!accessNode) {
                 THROW("Unexpected XML document structure");
             }
 
-	    pugi4lunch::pugi::xml_node userNode = accessNode.child("user");
+        pugi4lunch::pugi::xml_node userNode = accessNode.child("user");
 
             if(!userNode) {
                 THROW("Unexpected XML document structure");
             }
 
-	    pugi4lunch::pugi::xml_attribute usernameAttribute = userNode.attribute("username");
+        pugi4lunch::pugi::xml_attribute usernameAttribute = userNode.attribute("username");
             if(!usernameAttribute) {
                 THROW("Unexpected XML document structure");
             }
 
             info.setUsername(usernameAttribute.as_string());
-            
-	    pugi4lunch::pugi::xpath_node_set roleNodes = userNode.select_nodes("role");
+
+        pugi4lunch::pugi::xpath_node_set roleNodes = userNode.select_nodes("role");
 
             std::vector<std::string> roles;
 
@@ -228,10 +221,58 @@ namespace keystone { namespace impl {
     }
 
 
+
     void Keystone::setCaCertFileName(const std::string &caCertFileName) {
         this->caCertFileName = caCertFileName;
         userDefinedCaCertFile = true;
     }
+
+
+    void Keystone::getRequest(const std::string& endpoint, const KeystoneUserInfo& info,
+                              std::stringstream& output) {
+
+        CurlHolder curl(curl_easy_init());
+        if (!curl.curl) {
+            THROW("Could not initialize curl");
+        }
+        curl_easy_setopt(curl.curl, CURLOPT_URL, endpoint.c_str());
+
+        curl_easy_setopt(curl.curl, CURLOPT_FOLLOWLOCATION, 1L);
+        //curl_easy_setopt(curl.curl, CURLOPT_GET, 1L);
+        curl_easy_setopt(curl.curl, CURLOPT_WRITEFUNCTION, writeToSS);
+        curl_easy_setopt(curl.curl, CURLOPT_WRITEDATA, &output);
+
+        char* envCaCertFileName;
+        envCaCertFileName = getenv("KEYSTONE_SET_CA_CERTIFICATE_FILENAME");
+        if (this->userDefinedCaCertFile) {
+            curl_easy_setopt(curl.curl, CURLOPT_CAINFO, this->caCertFileName.c_str());
+        }
+        else if ( envCaCertFileName != NULL ) {
+            curl_easy_setopt(curl.curl, CURLOPT_CAINFO, envCaCertFileName);
+        }
+
+        // Set headers:
+        CurlListHolder headers;
+
+        headers.list = curl_slist_append(headers.list, "Accept: application/xml");
+        headers.list = curl_slist_append(headers.list, "Content-Type: application/xml");
+        headers.list = curl_slist_append(headers.list, "X-Auth-Token: <admin_token>");
+
+        curl_easy_setopt(curl.curl, CURLOPT_HTTPHEADER, headers.list);
+
+        KEYSTONE_CURL_SAFE_CALL(curl_easy_perform(curl.curl));
+
+
+        long returnCode;
+        KEYSTONE_CURL_SAFE_CALL(curl_easy_getinfo(curl.curl, CURLINFO_RESPONSE_CODE, &returnCode));
+
+        if (returnCode != 200 && returnCode != 203) {
+            std::stringstream ss;
+            THROW("Unexpected returncode: " << returnCode);
+        }
+
+    }
+
 
     void Keystone::write(const std::string& endpoint, const KeystoneUserInfo& info,
                          std::stringstream& input, std::stringstream& output) {
@@ -286,6 +327,15 @@ namespace keystone { namespace impl {
             std::stringstream ss;
 
             THROW("Unexpected returncode: " << + returnCode);
+        }
+
+    }
+
+
+    void Keystone::m_replace(std::string& str, const std::string& from, const std::string& to) {
+        size_t start_pos = str.find(from);
+        if (start_pos != std::string::npos) {
+            str.replace(start_pos, from.length(), to);
         }
 
     }

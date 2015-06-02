@@ -43,7 +43,13 @@ namespace keystone { namespace impl {
                    std::stringstream& in,
                    std::stringstream& out);
 
+        void getRequest(const std::string& endpoint, const KeystoneUserInfo& info,
+                        std::stringstream& output);
+
+        void m_replace(std::string& str, const std::string& from, const std::string& to);
+
         std::string url;
+        std::string adminUrl;
         std::string caCertFileName;
         bool userDefinedCaCertFile;
 
