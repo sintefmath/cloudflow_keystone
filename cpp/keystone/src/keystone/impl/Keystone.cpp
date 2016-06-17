@@ -154,28 +154,15 @@ namespace keystone { namespace impl {
                 THROW("Unexpected XML document structure");
             }
 
-            std::string id = tokenNode.value();
-            if(id.size() == 0) {
+            std::string sessionToken = tokenNode.value();
+            if(sessionToken.size() == 0) {
                 THROW("UnexpectedXML document structure");
             }
-            info.setToken(id);
+            info.setToken(sessionToken);
 
             info.setUsername(username);
 
-        /*pugi4lunch::pugi::xml_node userNode = envelopeNode.child("user");
-
-            if (!userNode) {
-                THROW("Unexpected reponse from server.");
-            }
-	    pugi4lunch::pugi::xpath_node_set roleNodes = userNode.select_nodes("role");
-
-            std::vector<std::string> roles;
-
-            for(pugi4lunch::pugi::xpath_node_set::const_iterator it = roleNodes.begin(); it != roleNodes.end(); ++it) {
-                roles.push_back(it->node().attribute("name").as_string());
-            }
-
-            info.setRoles(roles);*/
+            getRoles(url,  sessionToken, info);
     }
 
 
@@ -265,45 +252,72 @@ namespace keystone { namespace impl {
 
             info.setUsername(username);
 
+            getRoles(url,  sessionToken, info);
 
 
-/**
-            pugi4lunch::pugi::xml_document document;
-            if (!document.load(output)) {
-                THROW("Could not parse xml document returned from server");
-            }
+    }
 
-	    pugi4lunch::pugi::xml_node accessNode = document.child("access");
+    void Keystone::getRoles(const std::string &url, const std::string &sessionToken,
+                                                KeystoneUserInfo &info) {
+        std::vector<std::string> roles;
+        std::stringstream inputXML;
 
-            if(!accessNode) {
+        inputXML << "<?xml version='1.0' encoding='UTF-8'?>\n"
+                 << "<S:Envelope xmlns:S='http://schemas.xmlsoap.org/soap/envelope/' xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'>\n"
+                 << "<SOAP-ENV:Header/>\n"
+                 << "<S:Body>\n"
+                 << "<ns2:getRoles xmlns:ns2='http://authmanager.sintef.no/'>\n"
+                 << "<ns2:sessionToken>" << sessionToken << "</ns2:sessionToken>\n"
+                 << "</ns2:getRoles>\n"
+                 <<"</S:Body>\n"
+                 << "</S:Envelope>\n";
+
+        std::stringstream output;
+        write(url, info, inputXML, output);
+
+        pugi4lunch::pugi::xml_document document;
+        if (!document.load(output)) {
+            THROW("Could not parse xml document returned from server");
+        }
+
+        //printXML(document.root(), 0);
+
+        pugi4lunch::pugi::xml_node envelopeNode = document.child("S:Envelope");
+
+        if(!envelopeNode) {
+            THROW("Unexpected XML document structure");
+        }
+
+        pugi4lunch::pugi::xml_node bodyNode = envelopeNode.child("S:Body");
+
+        if(!bodyNode) {
+            THROW("Unexpected XML document structure");
+        }
+
+        pugi4lunch::pugi::xml_node responseNode= bodyNode.child("ns2:getRolesResponse");
+
+        if(!responseNode) {
+            THROW("Unexpected XML document structure");
+        }
+
+        // LOOP!
+        for (pugi4lunch::pugi::xml_node returnNode = responseNode.first_child(); returnNode; returnNode = returnNode.next_sibling()) {
+            if (!returnNode) {
+                std::cout << "We shouldn't even be here...";
                 THROW("Unexpected XML document structure");
             }
-
-	    pugi4lunch::pugi::xml_node userNode = accessNode.child("user");
-
-            if(!userNode) {
+            pugi4lunch::pugi::xml_node roleNode = returnNode.first_child();
+            if (!roleNode) {
                 THROW("Unexpected XML document structure");
             }
-
-	    pugi4lunch::pugi::xml_attribute usernameAttribute = userNode.attribute("username");
-            if(!usernameAttribute) {
+            std::string role = roleNode.value();
+            if (role.size() == 0) {
                 THROW("Unexpected XML document structure");
             }
+            roles.push_back(role);
+        }
 
-            info.setUsername(usernameAttribute.as_string());
-            
-	    pugi4lunch::pugi::xpath_node_set roleNodes = userNode.select_nodes("role");
-
-            std::vector<std::string> roles;
-
-            for(pugi4lunch::pugi::xpath_node_set::const_iterator it = roleNodes.begin(); it != roleNodes.end(); ++it) {
-                roles.push_back(it->node().attribute("name").as_string());
-            }
-
-            info.setRoles(roles);
-
-            info.setToken(sessionToken);
-*/
+        info.setRoles(roles);
     }
 
 

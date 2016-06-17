@@ -46,7 +46,8 @@ namespace keystone { namespace impl {
                    std::stringstream& out);
 
         void printXML(pugi4lunch::pugi::xml_node node, int intendation);
-
+        void getRoles(const std::string &url, const std::string &sessionToken,
+                                          KeystoneUserInfo& info);
         std::string url;
         std::string caCertFileName;
         bool userDefinedCaCertFile;
