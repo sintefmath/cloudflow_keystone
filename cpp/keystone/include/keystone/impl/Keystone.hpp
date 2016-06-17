@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include "keystone/impl/KeystoneUserInfo.hpp"
+#include <pugi4lunch/pugixml.hpp>
+
 
 namespace keystone { namespace impl {
     class Keystone {
@@ -42,6 +44,8 @@ namespace keystone { namespace impl {
                    const KeystoneUserInfo& info,
                    std::stringstream& in,
                    std::stringstream& out);
+
+        void printXML(pugi4lunch::pugi::xml_node node, int intendation);
 
         std::string url;
         std::string caCertFileName;

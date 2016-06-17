@@ -107,7 +107,6 @@ namespace keystone {
 
     private: 
         keystone_data_t* data;
-
         // We do not want to be able to copy this:
         Keystone(const Keystone& other) {}
         Keystone& operator=(const Keystone& other) { return *this; }

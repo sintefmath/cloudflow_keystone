@@ -87,10 +87,7 @@ namespace keystone { namespace impl {
         }
         this->url = url;
         
-        // Just make sure that it ends with '/'
-        if (this->url[this->url.size() - 1] != '/') {
-            this->url.append(1, '/');
-        }
+        // TODO: Check that url is correct. Should end with "?wsdl"
 
         userDefinedCaCertFile = false;
 
@@ -104,44 +101,60 @@ namespace keystone { namespace impl {
         const std::string& password,
         const std::string& tenantName,
         KeystoneUserInfo& info) {
-            std::stringstream input;
 
-            input << "<?xml version='1.0' encoding='UTF-8'?>" <<std::endl
-                << "<auth xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' " << std::endl
-                << "xmlns='http://docs.openstack.org/identity/api/v2.0' " <<std::endl
-                << "tenantName='" << tenantName << "'>"<<std::endl
-                << "<passwordCredentials username='" << username << "' password='" << password << "'/>"<<std::endl
-                << "</auth>" << std::endl;
+            std::stringstream inputXML;
+
+            inputXML << "<?xml version='1.0' encoding='UTF-8'?>\n"
+                     << "<S:Envelope xmlns:S='http://schemas.xmlsoap.org/soap/envelope/' xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'>\n"
+                     << "<SOAP-ENV:Header/>\n"
+                     << "<S:Body>\n"
+                     << "<ns2:getSessionToken xmlns:ns2='http://authmanager.sintef.no/'>\n"
+                     << "<ns2:username>" << username << "</ns2:username>\n"
+                     << "<ns2:password>"<< password << "</ns2:password>\n"
+                     << "<ns2:project>" << tenantName << "</ns2:project>\n"
+                     << "</ns2:getSessionToken>\n"
+                     <<"</S:Body>\n"
+                     << "</S:Envelope>\n";
 
             std::stringstream output;
+            write(url, info, inputXML, output);
 
-            std::string tokenUrl = url + "v2.0/tokens";
-            write(tokenUrl, info, input, output);
-
-	    pugi4lunch::pugi::xml_document document;
+            pugi4lunch::pugi::xml_document document;
             if (!document.load(output)) {
                 THROW("Could not parse xml document returned from server");
             }
 
-            pugi4lunch::pugi::xml_node accessNode = document.child("access");
+            //printXML(document.root(), 0);
 
-            if(!accessNode) {
+            pugi4lunch::pugi::xml_node envelopeNode = document.child("S:Envelope");
+
+            if(!envelopeNode) {
                 THROW("Unexpected XML document structure");
             }
 
-            pugi4lunch::pugi::xml_node tokenNode = accessNode.child("token");
+            pugi4lunch::pugi::xml_node bodyNode = envelopeNode.child("S:Body");
 
-            if(!tokenNode) {
+            if(!bodyNode) {
                 THROW("Unexpected XML document structure");
             }
 
-	    pugi4lunch::pugi::xml_attribute idAttribute = tokenNode.attribute("id");
+            pugi4lunch::pugi::xml_node responseNode= bodyNode.child("ns2:getSessionTokenResponse");
 
-            if(!idAttribute) {
+            if(!responseNode) {
                 THROW("Unexpected XML document structure");
             }
 
-            std::string id = idAttribute.as_string();
+            pugi4lunch::pugi::xml_node returnNode = responseNode.child("return");
+            if (!returnNode) {
+                THROW("Unexpected XML document structure");
+            }
+
+            pugi4lunch::pugi::xml_node tokenNode = returnNode.first_child();
+            if (!tokenNode) {
+                THROW("Unexpected XML document structure");
+            }
+
+            std::string id = tokenNode.value();
             if(id.size() == 0) {
                 THROW("UnexpectedXML document structure");
             }
@@ -149,7 +162,7 @@ namespace keystone { namespace impl {
 
             info.setUsername(username);
 
-	    pugi4lunch::pugi::xml_node userNode = accessNode.child("user");
+        /*pugi4lunch::pugi::xml_node userNode = envelopeNode.child("user");
 
             if (!userNode) {
                 THROW("Unexpected reponse from server.");
@@ -162,7 +175,25 @@ namespace keystone { namespace impl {
                 roles.push_back(it->node().attribute("name").as_string());
             }
 
-            info.setRoles(roles);
+            info.setRoles(roles);*/
+    }
+
+
+    void Keystone::printXML(pugi4lunch::pugi::xml_node node, int intendation) {
+        std::string space = "";
+        for (int i = 0; i < intendation; i++) {
+            space = space + "  ";
+        }
+        std::cout << space << "NODE" << std::endl;
+        std::cout << space << "name: " << node.name() << " - value: " << node.value() << std::endl;
+        space = space + "  ";
+        std::cout << space << "ATTRIBUTES" << std::endl;
+        for (pugi4lunch::pugi::xml_attribute a = node.first_attribute(); a; a = a.next_attribute()) {
+            std::cout << space << "name: " << a.name() << " - value: " << a.as_string() << std::endl;
+        }
+        for (pugi4lunch::pugi::xml_node n = node.first_child(); n; n = n.next_sibling()) {
+            printXML(n, intendation +1);
+        }
     }
 
 
@@ -173,23 +204,71 @@ namespace keystone { namespace impl {
     void Keystone::getUserInfo(const std::string& tenantName, 
         const std::string& sessionToken, KeystoneUserInfo& info) {
 
-	std::cout << "Keystone::getUserInfo in src/keystone/impl/Keystone.cpp" << std::endl;
+            std::stringstream inputXML;
 
-            std::stringstream input;
+            inputXML << "<?xml version='1.0' encoding='UTF-8'?>\n"
+                     << "<S:Envelope xmlns:S='http://schemas.xmlsoap.org/soap/envelope/' xmlns:SOAP-ENV='http://schemas.xmlsoap.org/soap/envelope/'>\n"
+                     << "<SOAP-ENV:Header/>\n"
+                     << "<S:Body>\n"
+                     << "<ns2:getUsername xmlns:ns2='http://authmanager.sintef.no/'>\n"
+                     << "<ns2:sessionToken>" << sessionToken << "</ns2:sessionToken>\n"
+                     << "</ns2:getUsername>\n"
+                     <<"</S:Body>\n"
+                     << "</S:Envelope>\n";
 
-            input << "<?xml version='1.0' encoding='UTF-8'?>" <<std::endl
-                << "<auth xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' " << std::endl
-                << "xmlns='http://docs.openstack.org/identity/api/v2.0' " <<std::endl
-                << "tenantName='" << tenantName << "'>"<<std::endl
-                << "<token id='" << sessionToken <<"' />"<<std::endl
-                << "</auth>" << std::endl;
 
             std::stringstream output;
 
-            std::string tokenUrl = url + "v2.0/tokens";
-            write(tokenUrl, info, input, output);
+            std::string tokenUrl = url;
+            write(tokenUrl, info, inputXML, output);
 
-	    pugi4lunch::pugi::xml_document document;
+            pugi4lunch::pugi::xml_document document;
+            if (!document.load(output)) {
+                THROW("Could not parse xml document returned from server");
+            }
+
+            //printXML(document.root(), 0);
+
+            pugi4lunch::pugi::xml_node envelopeNode = document.child("S:Envelope");
+
+            if(!envelopeNode) {
+                THROW("Unexpected XML document structure");
+            }
+
+            pugi4lunch::pugi::xml_node bodyNode = envelopeNode.child("S:Body");
+
+            if(!bodyNode) {
+                THROW("Unexpected XML document structure");
+            }
+
+            pugi4lunch::pugi::xml_node responseNode= bodyNode.child("ns2:getUsernameResponse");
+
+            if(!responseNode) {
+                THROW("Unexpected XML document structure");
+            }
+
+            pugi4lunch::pugi::xml_node returnNode = responseNode.child("return");
+            if (!returnNode) {
+                THROW("Unexpected XML document structure");
+            }
+
+            pugi4lunch::pugi::xml_node usernameNode = returnNode.first_child();
+            if (!usernameNode) {
+                THROW("Unexpected XML document structure");
+            }
+
+            std::string username = usernameNode.value();
+            if(username.size() == 0) {
+                THROW("UnexpectedXML document structure");
+            }
+            info.setToken(sessionToken);
+
+            info.setUsername(username);
+
+
+
+/**
+            pugi4lunch::pugi::xml_document document;
             if (!document.load(output)) {
                 THROW("Could not parse xml document returned from server");
             }
@@ -224,7 +303,7 @@ namespace keystone { namespace impl {
             info.setRoles(roles);
 
             info.setToken(sessionToken);
-
+*/
     }
 
 
@@ -271,11 +350,10 @@ namespace keystone { namespace impl {
         // Set headers:
         CurlListHolder headers;
 
-        headers.list = curl_slist_append(headers.list, "Accept: application/xml");
-        headers.list = curl_slist_append(headers.list, "Content-Type: application/xml");
+        headers.list = curl_slist_append(headers.list, "Accept: text/xml");
+        headers.list = curl_slist_append(headers.list, "Content-Type: text/xml");
 
         curl_easy_setopt(curl.curl, CURLOPT_HTTPHEADER, headers.list);
-
         KEYSTONE_CURL_SAFE_CALL(curl_easy_perform(curl.curl));
 
 
@@ -287,7 +365,6 @@ namespace keystone { namespace impl {
 
             THROW("Unexpected returncode: " << + returnCode);
         }
-
     }
 }
 }
